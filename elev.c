@@ -28,6 +28,18 @@ static const int button_channel_matrix[N_FLOORS][N_BUTTONS] = {
     {BUTTON_UP3, BUTTON_DOWN3, BUTTON_COMMAND3},
     {BUTTON_UP4, BUTTON_DOWN4, BUTTON_COMMAND4},
 };
+ //types to control buttons + lights
+static const elev_button_type_t button_control_list[N_FLOORS][N_BUTTONS] = 
+    [BUTTON_CALL_UP, BUTTON_CALL_DOWN, BUTTON_COMMAND];
+
+// Global control of lamps on floors
+static int button_control_matrix[N_FLOORS][N_BUTTONS] = {
+    {0,0,0},  //{LIGHT_UP1, LIGHT_DOWN1, LIGHT_COMMAND1},
+    {0,0,0},  //{LIGHT_UP2, LIGHT_DOWN2, LIGHT_COMMAND2},
+    {0,0,0},  //{LIGHT_UP3, LIGHT_DOWN3, LIGHT_COMMAND3},
+    {0,0,0},  //{LIGHT_UP4, LIGHT_DOWN4, LIGHT_COMMAND4},
+};
+
 
 int elev_init(void) {
     int i;
@@ -92,14 +104,19 @@ void elev_set_stop_lamp(int value) {
 
 int elev_get_floor_sensor_signal(void) {
     if (io_read_bit(SENSOR_FLOOR1))
+        elev_floor_memory=0;
         return 0;
     else if (io_read_bit(SENSOR_FLOOR2))
+        elev_floor_memory=1;
         return 1;
     else if (io_read_bit(SENSOR_FLOOR3))
+        elev_floor_memory=2;
         return 2;
     else if (io_read_bit(SENSOR_FLOOR4))
+        elev_floor_memory=3;
         return 3;
     else
+        elev_floor_memory=-1;
         return -1;
 }
 
@@ -143,4 +160,67 @@ void elev_set_button_lamp(elev_button_type_t button, int floor, int value) {
         io_set_bit(lamp_channel_matrix[floor][button]);
     else
         io_clear_bit(lamp_channel_matrix[floor][button]);
+}
+
+void elev_clear_button_control(int floor, int button) {
+    for(int floors=0; floors<N_FLOORS; floors++)
+    {
+        for(int buttons=0; buttons<N_BUTTONS; buttons++) 
+        {
+            if (lamp_channel_matrix[floors][buttons]!=-1) //If button exists
+                button_control_matrix[floors][buttons]=0;
+                elev_set_button_lamp(button_control_list[buttons],floors,0);     
+        }
+
+    }
+}
+
+void elev_update_button_control(){
+    for(int floors=0; floors<N_FLOORS; floors++)
+    {
+        for(int buttons=0; buttons<N_BUTTONS; buttons++) 
+        {
+            if (button_channel_matrix[floors][buttons]!=-1) //If button exists
+            {
+                if (elev_get_button_signal(button_control_list[buttons],floors))
+                    button_control_matrix[floors][buttons]=1;
+                    elev_set_button_lamp(button_control_list[buttons],floors,1); 
+            }
+                    
+        }
+
+    }
+}
+
+
+tag_elev_motor_direction elev_direction_control(tag_elev_motor_direction direction){
+    int dir_number=1;
+    if(direction==DIRN_UP)
+        dir_number=0;
+    else if(direction==DIRN_DOWN)
+        dir_number=1;
+    else
+        return elev_direction_control_still();
+
+    if(button_control_matrix[elev_floor_memory][2]||button_control_matrix[elev_floor_memory][dirNumber])
+        return DIRN_STOP;
+    else
+        return direction;
+    }
+
+tag_elev_motor_direction elev_direction_control_still(){
+    for(int floors=0; floors<N_FLOORS; floors++)
+        {
+            for(int buttons=0; buttons<N_BUTTONS; buttons++) 
+            {
+                if (button_channel_matrix[floors][buttons]!=-1) //If button exists
+                    if(button_control_matrix[floors][buttons])
+                        if((elev_floor_memory-floors)>0)
+                            return DIRN_UP;
+                        else if((elev_floor_memory-floors)<0)
+                            return DIRN_DOWN;
+                        else
+                            return DIRN_STOP;
+            }
+        }
 }

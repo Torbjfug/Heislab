@@ -9,7 +9,8 @@
 // Number of floors
 #define N_FLOORS 4
 
-
+//remember what floor last passed
+static int elev_floor_memory;
 
 /**
   Initialize elevator.
@@ -118,6 +119,31 @@ int elev_get_button_signal(elev_button_type_t button, int floor);
 */
 void elev_set_button_lamp(elev_button_type_t button, int floor, int value);
 
+
+/**
+  Loops through all buttons to update register button_control_matrix.
+  Also turnes on lamps when pressed.
+*/
+void elev_update_button_control()
+
+/**
+  Loops through lamp_control_matrix to clear all lamps.
+*/
+void elev_clear_button_control()
+
+/**
+  Returns DIRN_STOP, DIRN_UP or DIRN_UP, after calculating efficient route.
+  @param direction Current direction of the elevator
+  @return DIRN_STOP, DIRN_UP or DIRN_UP
+*/
+tag_elev_motor_direction elev_direction_control(tag_elev_motor_direction direction)
+
+/**
+  Used in elev_direction_control
+  Calculates what direction to start in if motor is still.
+  @return DIRN_STOP, DIRN_UP or DIRN_UP
+*/
+tag_elev_motor_direction elev_direction_control_still(){
 
 
 #endif // #ifndef __INCLUDE_DRIVER_H__
