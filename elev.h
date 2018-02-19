@@ -23,7 +23,8 @@ int elev_init(void);
 /**
   Motor direction for function elev_set_motor_direction().
 */
-typedef enum tag_elev_motor_direction { 
+typedef enum tag_elev_motor_direction {
+    DIRN_IDLE = -2,
     DIRN_DOWN = -1,
     DIRN_STOP = 0,
     DIRN_UP = 1
@@ -122,28 +123,28 @@ void elev_set_button_lamp(elev_button_type_t button, int floor, int value);
 
 /**
   Loops through all buttons to update register button_control_matrix.
-  Also turnes on lamps when pressed.
+  Also turns on lamps when pressed.
 */
-void elev_update_button_control()
+void elev_update_button_control();
 
 /**
   Loops through lamp_control_matrix to clear all lamps.
 */
-void elev_clear_button_control()
+void elev_clear_button_control();
 
 /**
   Returns DIRN_STOP, DIRN_UP or DIRN_UP, after calculating efficient route.
   @param direction Current direction of the elevator
   @return DIRN_STOP, DIRN_UP or DIRN_UP
 */
-tag_elev_motor_direction elev_direction_control(tag_elev_motor_direction direction)
+enum tag_elev_motor_direction elev_direction_control(enum tag_elev_motor_direction direction);
 
 /**
   Used in elev_direction_control
   Calculates what direction to start in if motor is still.
   @return DIRN_STOP, DIRN_UP or DIRN_UP
 */
-tag_elev_motor_direction elev_direction_control_still(){
+enum tag_elev_motor_direction elev_direction_control_still();
 
 
 #endif // #ifndef __INCLUDE_DRIVER_H__

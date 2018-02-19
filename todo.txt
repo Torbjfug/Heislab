@@ -1,5 +1,6 @@
 To do:
 	get branching straight
+	Legg til returverdi for ingen best
 Doing:
 	
 	State-T
