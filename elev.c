@@ -29,8 +29,7 @@ static const int button_channel_matrix[N_FLOORS][N_BUTTONS] = {
     {BUTTON_UP4, BUTTON_DOWN4, BUTTON_COMMAND4},
 };
  //types to control buttons + lights
-static const elev_button_type_t button_control_list[N_FLOORS][N_BUTTONS] =
-    [BUTTON_CALL_UP, BUTTON_CALL_DOWN, BUTTON_COMMAND];
+static const elev_button_type_t button_control_list[3] = {BUTTON_CALL_UP, BUTTON_CALL_DOWN, BUTTON_COMMAND};
 
 // Global control of lamps on floors
 static int button_control_matrix[N_FLOORS][N_BUTTONS] = {
