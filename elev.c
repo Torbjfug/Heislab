@@ -120,7 +120,6 @@ int elev_get_floor_sensor_signal(void) {
         return 3;
     }
     else {
-        elev_floor_memory = -1;
         return -1;
     }
 }
@@ -161,6 +160,8 @@ void elev_set_button_lamp(elev_button_type_t button, int floor, int value) {
     assert(!(button == BUTTON_CALL_DOWN && floor == 0));
     assert(button == BUTTON_CALL_UP || button == BUTTON_CALL_DOWN || button == BUTTON_COMMAND);
 
+    button_control_matrix[floor][button]=value;
+
     if (value)
         io_set_bit(lamp_channel_matrix[floor][button]);
     else
@@ -174,7 +175,6 @@ void elev_clear_button_control() {
         {
             if (lamp_channel_matrix[floors][buttons]!=-1) //If button exists
             {
-                button_control_matrix[floors][buttons] = 0;
                 elev_set_button_lamp(button_control_list[buttons], floors, 0);
             }
         }
@@ -190,7 +190,6 @@ void elev_update_button_control(){
             if (button_channel_matrix[floors][buttons]!=-1) //If button exists
             {
                 if (elev_get_button_signal(button_control_list[buttons],floors)) {
-                    button_control_matrix[floors][buttons] = 1;
                     elev_set_button_lamp(button_control_list[buttons], floors, 1);
                 }
             }
@@ -210,8 +209,8 @@ enum tag_elev_motor_direction elev_direction_control(enum tag_elev_motor_directi
     else
         return elev_direction_control_still();
 
-    if(button_control_matrix[elev_floor_memory][2]||button_control_matrix[elev_floor_memory][dir_number])
-        return DIRN_STOP;
+    if(button_control_matrix[elev_floor_memory][2]||button_control_matrix[elev_floor_memory][dir_number]){
+        return DIRN_STOP;}
     else
         return direction;
     }
@@ -223,13 +222,26 @@ enum tag_elev_motor_direction elev_direction_control_still(){
             {
                 if (button_channel_matrix[floors][buttons]!=-1) //If button exists
                     if(button_control_matrix[floors][buttons])
-                        if((elev_floor_memory-floors)>0)
+                        if((elev_floor_memory-floors)<0)
                             return DIRN_UP;
-                        else if((elev_floor_memory-floors)<0)
+                        else if((elev_floor_memory-floors)>0)
                             return DIRN_DOWN;
-                        else
+                        else{	
+			    //elev_set_button_lamp(BUTTON_COMMAND,elev_floor_memory,0);
                             return DIRN_STOP;
+			}
             }
         }
     return DIRN_IDLE;
 }
+
+void elev_clear_button_floor(enum tag_elev_motor_direction direction,int floor){
+    elev_set_button_lamp(BUTTON_COMMAND,floor,0);
+    if (direction == DIRN_DOWN){
+	elev_set_button_lamp(BUTTON_CALL_DOWN,floor,0);
+    }
+    else if (direction == DIRN_UP){
+        elev_set_button_lamp(BUTTON_CALL_UP,floor,0);
+    }
+}
+

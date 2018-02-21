@@ -10,11 +10,48 @@ enum elevator_states
 int main() {
     // Initialize hardware
     
-
     enum elevator_states state;
-
     state = INITIAL_ST;
-    while(1) {
+    elev_init();
+    enum tag_elev_motor_direction old_dir;
+    elev_set_motor_direction(DIRN_STOP);
+    int count;
+    while(1){
+    count = 0;
+    if (elev_get_button_signal(BUTTON_CALL_DOWN,2)){
+	old_dir = DIRN_DOWN;
+   	elev_set_motor_direction(DIRN_DOWN);
+	}
+    if (elev_get_button_signal(BUTTON_CALL_UP,2)){
+	elev_set_motor_direction(DIRN_UP);
+	old_dir = DIRN_UP;
+	}
+    if(elev_get_stop_signal()){
+	elev_clear_button_control();
+    }
+    while(elev_get_obstruction_signal()){
+	enum tag_elev_motor_direction new_dir;
+	new_dir = elev_direction_control(old_dir);
+	if (count < 1){
+		printf("old_dir: %i\n",old_dir);
+		printf("new_dir: %i\n",new_dir);
+		printf("floor: %i\n",elev_floor_memory);
+	}
+	elev_set_motor_direction(DIRN_STOP);
+	old_dir = DIRN_STOP;
+	count++;
+	}
+    elev_update_button_control();
+    if(elev_get_floor_sensor_signal()!=-1){
+        elev_floor_memory = elev_get_floor_sensor_signal();
+    }
+    elev_set_floor_indicator(elev_floor_memory);
+    }
+   /*
+     while(1) {
+	if(elev_get_obstruction_signal())
+	  break;
+	
         switch (state) {
             case INITIAL_ST:
                 printf("Initial state\n");
@@ -29,9 +66,8 @@ int main() {
 
 
             case STOP_ST:
-
-                printf("Stop state\n");
-
+		printf("Stop state\n");
+		printf("etasje%i\n",elev_floor_memory);		
                 elev_set_motor_direction(DIRN_STOP);
                 elev_set_door_open_lamp(1);
                 time_t start_time, current_time;
@@ -39,7 +75,7 @@ int main() {
                 current_time = time(NULL);
                 while (current_time - start_time < 3) {
 
-                    //SJEKK BESTILLING
+                   elev_update_button_control(); 
 
                     current_time = time(NULL);
 
@@ -61,7 +97,9 @@ int main() {
 
 
                 direction = elev_direction_control(direction); //set inn get-funksjon for retning
-                if (direction == DIRN_STOP)//ETASJE == DENNE
+                printf("direction:%i\n",direction);
+		
+		if (direction == DIRN_STOP)//ETASJE == DENNE
                     state = STOP_ST;
                 else if (direction == DIRN_UP)
                     state = UP_ST;
@@ -75,13 +113,14 @@ int main() {
                 printf("Up state\n");
 
                 elev_set_motor_direction(DIRN_UP);
-                int floor;
+                int floor, prev_floor;
+		prev_floor = elev_floor_memory;
 
 
                 do {
                     elev_update_button_control();
                     floor = elev_get_floor_sensor_signal();
-                } while (floor < 0 || floor == elev_floor_memory);
+                } while (floor < 0 || floor == prev_floor);
                 elev_set_floor_indicator(floor);
                 elev_floor_memory = floor;
                 enum tag_elev_motor_direction direction;
@@ -102,14 +141,15 @@ int main() {
                 printf("Down state\n");
 
                 elev_set_motor_direction(DIRN_DOWN);
-                int floor;
+                int floor, prev_floor;
+		prev_floor = elev_floor_memory;
                 do {
                     elev_update_button_control();
                     floor = elev_get_floor_sensor_signal();
                 }
-                while (floor < 0 || floor == elev_floor_memory);
+                while (floor<0 || floor == prev_floor);
                 elev_set_floor_indicator(floor);
-                elev_floor_memory = floor;
+                
 
                 enum tag_elev_motor_direction direction;
                 direction = DIRN_DOWN;
@@ -140,9 +180,8 @@ int main() {
                 break;
         }
     }
-
+*/
     
-
 
 
 

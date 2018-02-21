@@ -146,5 +146,7 @@ enum tag_elev_motor_direction elev_direction_control(enum tag_elev_motor_directi
 */
 enum tag_elev_motor_direction elev_direction_control_still();
 
+void elev_clear_floor_memory(enum tag_elev_motor_direction direction, int floor);
+
 
 #endif // #ifndef __INCLUDE_DRIVER_H__
