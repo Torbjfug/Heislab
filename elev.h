@@ -10,7 +10,9 @@
 #define N_FLOORS 4
 
 //remember what floor last passed
+
 static int elev_floor_memory;
+static int elev_emergency_flag = 0;
 
 /**
   Initialize elevator.
@@ -111,6 +113,7 @@ int elev_get_button_signal(elev_button_type_t button, int floor);
 
 
 
+
 /**
   Set a button lamp.
   @param lamp Which type of lamp to set. Can be BUTTON_CALL_UP,
@@ -148,5 +151,11 @@ enum tag_elev_motor_direction elev_direction_control_still();
 
 void elev_clear_floor_memory(enum tag_elev_motor_direction direction, int floor);
 
+void elev_clear_button_floor(enum tag_elev_motor_direction direction,int floor);
 
+void elev_set_floor_memory(int floor);
+
+int elev_get_floor_memory();
+
+void elev_print_contol_matrix();
 #endif // #ifndef __INCLUDE_DRIVER_H__
