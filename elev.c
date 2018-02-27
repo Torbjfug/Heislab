@@ -13,7 +13,7 @@
 #include <stdlib.h>
 
 // Number of signals and lamps on a per-floor basis (excl sensor)
-#define N_BUTTONS 3
+
 
 
 static const int lamp_channel_matrix[N_FLOORS][N_BUTTONS] = {
@@ -42,7 +42,7 @@ static int button_control_matrix[N_FLOORS][N_BUTTONS] = {
 };
 
 
-int elev_init(void) {
+int control_init(void) {
 
 
     // Init hardware
@@ -50,18 +50,20 @@ int elev_init(void) {
         return 0;
 
     // Zero all floor button lamps
-    elev_clear_button_control();
+    control_clear_control_matrix();
 
     // Clear stop lamp, door open lamp, and set floor indicator to ground floor.
-    elev_set_stop_lamp(0);
-    elev_set_door_open_lamp(0);
-    elev_set_floor_indicator(0);
+    elevator_set_stop_lamp(0);
+    elevator_set_door_open_lamp(0);
+    elevator_set_floor_indicator(0);
 
     // Return success.
     return 1;
 }
 
-tatic int emergency_flag = 0;oid elev_set_motor_direction(elev_motor_direction_t dirn) {
+static int emergency_flag = 0;
+
+void elevator_set_motor_direction(elev_motor_direction_t dirn) {
 
 
     if (dirn == 0){
@@ -75,29 +77,29 @@ tatic int emergency_flag = 0;oid elev_set_motor_direction(elev_motor_direction_t
     }
 }
 
-void elev_set_door_open_lamp(int value) {
+void elevator_set_door_open_lamp(int value) {
     if (value)
         io_set_bit(LIGHT_DOOR_OPEN);
     else
         io_clear_bit(LIGHT_DOOR_OPEN);
 }
 
-int elev_get_obstruction_signal(void) {
+int elevator_get_obstruction_signal(void) {
     return io_read_bit(OBSTRUCTION);
 }
 
-int elev_get_stop_signal(void) {
+int elevator_get_stop_signal(void) {
     return io_read_bit(STOP);
 }
 
-void elev_set_stop_lamp(int value) {
+void elevator_set_stop_lamp(int value) {
     if (value)
         io_set_bit(LIGHT_STOP);
     else
         io_clear_bit(LIGHT_STOP);
 }
 
-int elev_get_floor_sensor_signal(void) {
+int elevator_get_floor_sensor_signal(void) {
     if (io_read_bit(SENSOR_FLOOR1))
     {
 
@@ -121,7 +123,7 @@ int elev_get_floor_sensor_signal(void) {
 }
 
 
-void elev_set_floor_indicator(int floor) {
+void elevator_set_floor_indicator(int floor) {
     assert(floor >= 0);
     assert(floor < N_FLOORS);
 
@@ -139,7 +141,7 @@ void elev_set_floor_indicator(int floor) {
         io_clear_bit(LIGHT_FLOOR_IND2);
 }
 
-int elev_get_button_signal(elev_button_type_t button, int floor) {
+int elevator_get_button_signal(elev_button_type_t button, int floor) {
     assert(floor >= 0);
     assert(floor < N_FLOORS);
     assert(!(button == BUTTON_CALL_UP && floor == N_FLOORS - 1));
@@ -152,7 +154,7 @@ int elev_get_button_signal(elev_button_type_t button, int floor) {
         return 0;
 }
 
-void elev_set_button_lamp(elev_button_type_t button, int floor, int value) {
+void control_set_button(elev_button_type_t button, int floor, int value) {
     assert(floor >= 0);
     assert(floor < N_FLOORS);
     assert(!(button == BUTTON_CALL_UP && floor == N_FLOORS - 1));
@@ -168,7 +170,7 @@ void elev_set_button_lamp(elev_button_type_t button, int floor, int value) {
 }
 
 
-void elev_clear_button_control() {
+void control_clear_control_matrix() {
     for(int floors=0; floors<N_FLOORS; floors++)
 
     {
@@ -176,22 +178,22 @@ void elev_clear_button_control() {
         {
             if (lamp_channel_matrix[floors][buttons]!=-1) //If button exists
             {
-                elev_set_button_lamp(button_control_list[buttons], floors, 0);
+                control_set_button(button_control_list[buttons], floors, 0);
             }
         }
 
     }
 }
 
-void elev_update_button_control(){
+void control_update_control_matrix(){
     for(int floors=0; floors<N_FLOORS; floors++)
     {
         for(int buttons=0; buttons<N_BUTTONS; buttons++) 
         {
             if (button_channel_matrix[floors][buttons]!=-1) //If button exists
             {
-                if (elev_get_button_signal(button_control_list[buttons],floors)) {
-                    elev_set_button_lamp(button_control_list[buttons], floors, 1);
+                if (elevator_get_button_signal(button_control_list[buttons], floors)) {
+                    control_set_button(button_control_list[buttons], floors, 1);
                 }
             }
                     
@@ -200,8 +202,8 @@ void elev_update_button_control(){
     }
 }
 
-enum tag_elev_motor_direction elev_direction_control(enum tag_elev_motor_direction direction){
-    if (elev_emergency_flag){
+enum tag_elevator_motor_direction control_direction(enum tag_elevator_motor_direction direction){
+    if (control_emergency_flag){
         
     }
     if (direction == DIRN_STOP || direction == DIRN_IDLE){
@@ -209,7 +211,7 @@ enum tag_elev_motor_direction elev_direction_control(enum tag_elev_motor_directi
     }
     int dirn = direction;
     int current_floor, i,button;
-    current_floor = elev_get_floor_memory();
+    current_floor = control_get_previous_floor();
     i = current_floor;
     if (dirn == 1){
 	button = 0;
@@ -252,7 +254,7 @@ enum tag_elev_motor_direction elev_direction_control(enum tag_elev_motor_directi
 }
 
 /*
-enum tag_elev_motor_direction elev_direction_control(enum tag_elev_motor_direction direction){
+enum tag_elevator_motor_direction control_direction(enum tag_elevator_motor_direction direction){
     int dir_number;
     if(direction==DIRN_UP)
         dir_number=0;
@@ -267,14 +269,14 @@ enum tag_elev_motor_direction elev_direction_control(enum tag_elev_motor_directi
     }    
     
 
-    if(button_control_matrix[elev_floor_memory][2]||button_control_matrix[elev_floor_memory][dir_number]){
+    if(button_control_matrix[control_previous_floor][2]||button_control_matrix[control_previous_floor][dir_number]){
         return DIRN_STOP;}
     else
         return direction;
     }
 
 printf("button after: %i\n", button_control_matrix[2][2]);
-enum tag_elev_motor_direction elev_direction_control_still(){
+enum tag_elevator_motor_direction elev_direction_control_still(){
     for(int floors=0; floors<N_FLOORS; floors++)
         {
             for(int buttons=0; buttons<N_BUTTONS; buttons++) 
@@ -283,10 +285,10 @@ enum tag_elev_motor_direction elev_direction_control_still(){
                     if(button_control_matrix[floors][buttons])
                         if((elev_get_floor_memory()-floors)<0)
                             return DIRN_UP;
-                        else if((elev_get_floor_memory()-floors)>0)
+                        else if((control_get_previous_floor()-floors)>0)
                             return DIRN_DOWN;
                         else{	
-			    //elev_set_button_lamp(BUTTON_COMMAND,elev_floor_memory,0);
+			    //control_set_button(BUTTON_COMMAND,control_previous_floor,0);
                             return DIRN_STOP;
 			}
             }
@@ -294,45 +296,45 @@ enum tag_elev_motor_direction elev_direction_control_still(){
     return DIRN_IDLE;
 }
 */
-void elev_clear_button_floor(enum tag_elev_motor_direction direction,int floor){
+void control_clear_floor_order(enum tag_elevator_motor_direction direction, int floor){
     printf("Clear button Floor:%i, Direction: %i\n", floor, direction);
-    elev_set_button_lamp(BUTTON_COMMAND,floor,0);
+    control_set_button(BUTTON_COMMAND, floor, 0);
     printf("button before: %i\n", button_control_matrix[floor][2]);
 
     if (floor == 0){
-       elev_set_button_lamp(BUTTON_CALL_UP,floor,0);
+        control_set_button(BUTTON_CALL_UP, floor, 0);
     }
 
     else if (floor == N_FLOORS-1){
-       elev_set_button_lamp(BUTTON_CALL_DOWN,floor,0);
+        control_set_button(BUTTON_CALL_DOWN, floor, 0);
     }
     
     else if (direction == DIRN_STOP){
 	printf("Cleared stop\n");
-        elev_set_button_lamp(BUTTON_CALL_DOWN,floor,0);
-	elev_set_button_lamp(BUTTON_CALL_UP,floor,0);
+        control_set_button(BUTTON_CALL_DOWN, floor, 0);
+        control_set_button(BUTTON_CALL_UP, floor, 0);
     }
     else if(direction == DIRN_DOWN){
-	elev_set_button_lamp(BUTTON_CALL_DOWN,floor,0);
+        control_set_button(BUTTON_CALL_DOWN, floor, 0);
     }
     else if (direction == DIRN_UP){
-        elev_set_button_lamp(BUTTON_CALL_UP,floor,0);
+        control_set_button(BUTTON_CALL_UP, floor, 0);
     }
     printf("button after: %i\n", button_control_matrix[floor][2]);
 
 }
 
-void elev_set_floor_memory(int floor){
+void control_set_previous_floor(int floor){
     if (floor >= 0 && floor < N_FLOORS){
-        elev_floor_memory = floor;
+        control_previous_floor = floor;
     }
 }
 
-int elev_get_floor_memory(){
-    return elev_floor_memory;
+int control_get_previous_floor(){
+    return control_previous_floor;
 }
 
-void elev_print_control_matrix(void){
+void control_print_control_matrix(void){
     for (int i = 0; i < N_FLOORS; ++i){
 	for (int j = 0; j < 3;++j){
 	    printf("%i ", button_control_matrix[i][j]);

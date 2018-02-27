@@ -7,5 +7,5 @@ Doing:
 
 	
 Done:
-Buttons-S -m "Added elev_clear_button_control() and elev_update_button_control()"
-Bestillng/kontroll-S -m "Added elev_direction_control and elev_direction_control_still()"
+Buttons-S -m "Added control_clear_control_matrix() and control_update_control_matrix()"
+Bestillng/kontroll-S -m "Added control_direction and elev_direction_control_still()"
