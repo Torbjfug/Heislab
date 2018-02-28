@@ -90,7 +90,7 @@ int elevator_get_floor_sensor_signal(void) {
         return 0;
     }
     else if (io_read_bit(SENSOR_FLOOR2)) {
-        printf("Etasjenumemr1");
+
         return 1;
     }
     else if (io_read_bit(SENSOR_FLOOR3)) {

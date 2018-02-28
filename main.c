@@ -1,7 +1,10 @@
 #include "elevator.h"
 #include "control.h"
+#include "timer.h"
+
 #include <stdio.h>
 #include <time.h>
+
 //define DEBUG
 
 enum elevator_states
@@ -56,11 +59,6 @@ int main() {
 #endif
 #ifndef DEBUG
      while(1) {
-	if(elevator_get_obstruction_signal()){
-        elevator_set_motor_direction(DIRN_STOP);
-	  break;
-   	}
-	
         switch (state) {
             case INITIAL_ST:
                 printf("Initial state\n");
@@ -68,8 +66,9 @@ int main() {
                     printf("Unable to initialize elevator hardware!\n");
                     return 1;
                 }
+                timer_reset();
                 elevator_set_motor_direction(DIRN_UP);
-		control_set_previous_direction(DIRN_UP);
+		          control_set_previous_direction(DIRN_UP);
                 while (elevator_get_floor_sensor_signal() == -1)  {
 
 		}
@@ -79,27 +78,27 @@ int main() {
                 break;
 
 
-            case STOP_ST:		
-		printf("Stop state\n");
-		//printf("etasje: %i\n",control_get_previous_floor());
+            case STOP_ST:
+                {
+		          printf("Stop state\n");
+		      //printf("etasje: %i\n",control_get_previous_floor());
                 elevator_set_motor_direction(DIRN_STOP);
                 elevator_set_door_open_lamp(1);
-                time_t start_time, current_time;
-                start_time = time(NULL);
-                current_time = time(NULL);
-                while (current_time - start_time < 3) {
-		   if(current_time - start_time > 0.1)
-               control_update_control_matrix();
-		   if(elevator_get_stop_signal()){
-		        state = EMERGENCY_ST;
-			goto emergency;
-    		   }
-                    current_time = time(NULL);
+                timer_set(0.1,3);
 
+                while (timer_get() != 2) {
+		          if(timer_get() != 0){
+                        control_update_control_matrix();
+                  }
+		          if(elevator_get_stop_signal()){
+    		          state = EMERGENCY_ST;
+                      goto emergency;
+    		       }
+            
                 }
 
                 state = IDLE_ST;
-                break;
+                }break;
 
             case IDLE_ST: {
 
@@ -108,17 +107,16 @@ int main() {
                 elevator_set_door_open_lamp(0);
                 enum tag_elevator_motor_direction direction;
                 direction = DIRN_IDLE;
-                while (control_direction(control_get_previous_direction()) == DIRN_IDLE) { //Bestilling finst ikkje
-                    control_update_control_matrix(); //sjekk bestilling
+                while (direction == DIRN_IDLE) { //Bestilling finst ikkje
+                    direction = control_direction(control_get_previous_direction());
+		    control_update_control_matrix(); //sjekk bestilling
 		    if(elevator_get_stop_signal()){
                         state = EMERGENCY_ST;
                         goto emergency;
                    }
 
                 }
-
-
-                direction = control_direction(control_get_previous_direction()); //set inn get-funksjon for retning
+                //set inn get-funksjon for retning
                 printf("direction:%i\n",direction);
                 //printed before
                 control_clear_floor_order(direction, control_get_previous_floor());
@@ -150,12 +148,22 @@ int main() {
                         state = EMERGENCY_ST;
                         goto emergency;
                    }
+		   if (control_get_emergency_flag() && floor == prev_floor){
+                        break;
+                    }
+
 
                 } while (floor < 0 || floor == prev_floor);
                 elevator_set_floor_indicator(floor);
                 control_set_previous_floor(floor);
                 enum tag_elevator_motor_direction direction;
-                direction = DIRN_UP;
+                
+		if(control_get_emergency_flag()){
+                    control_set_emergency_flag(0);
+                }
+
+		
+		direction = DIRN_UP;
                 direction = control_direction(direction);
 		
                 if (direction == 0){
@@ -186,12 +194,21 @@ int main() {
                         state = EMERGENCY_ST;
                         goto emergency;
                    }
+		    if(control_get_emergency_flag() && floor == prev_floor){
+			break;
+		    }
 
                 }
                 while (floor<0 || floor == prev_floor);
                 elevator_set_floor_indicator(floor);
                 control_set_previous_floor(floor);
+		
+		if(control_get_emergency_flag()){
+                    control_set_emergency_flag(0);
+                }
 
+
+                       
                 enum tag_elevator_motor_direction direction;
                 direction = DIRN_DOWN;
                 direction = control_direction(direction);
@@ -220,11 +237,11 @@ int main() {
                 while (elevator_get_stop_signal()) {}
 		if(at_floor){
 		    state = STOP_ST;
-		    control_emergency_flag = 0;
+		    control_set_emergency_flag(0); 
 		}
 		else{
 		    state = IDLE_ST;
-		    control_emergency_flag = 1;
+		    control_set_emergency_flag(1);
 		}
         elevator_set_stop_lamp(0);
 	    }break;

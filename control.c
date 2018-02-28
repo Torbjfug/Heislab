@@ -95,8 +95,17 @@ void control_update_control_matrix(){
 }
 
 enum tag_elevator_motor_direction control_direction(enum tag_elevator_motor_direction direction){
-    if (control_get_emergency_flag()){
-
+    if (control_emergency_flag){
+//	printf("Førre etasje %i\n", control_previous_direction);
+	for (int button = 0; button < N_BUTTONS; ++button){
+	    if(button_control_matrix[control_previous_floor][button] == 1){
+		//printf("EM_flag før: %i\n", control_emergency_flag);
+		//control_emergency_flag = 0;
+		printf("EM_flag etter: %i\n", control_emergency_flag);
+		control_previous_direction *= -1;		
+		return control_previous_direction;
+	    }
+	} 
     }
     if (direction == DIRN_STOP || direction == DIRN_IDLE){
         direction = DIRN_UP;
@@ -240,7 +249,7 @@ void control_set_button(elev_button_type_t button, int floor, int value) {
     assert(!(button == BUTTON_CALL_UP && floor == N_FLOORS - 1));
     assert(!(button == BUTTON_CALL_DOWN && floor == 0));
     assert(button == BUTTON_CALL_UP || button == BUTTON_CALL_DOWN || button == BUTTON_COMMAND);
-
+    
     button_control_matrix[floor][button]=value;
-
+    elevator_set_button_lamp(floor,button, value);
 }
