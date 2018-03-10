@@ -21,7 +21,7 @@ int timer_get(void);
 
 /**
 	Stops timer and reset timer_active_flag
-*/	
+*/
 void timer_reset(void);
 
 

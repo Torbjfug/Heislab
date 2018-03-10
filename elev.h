@@ -94,7 +94,7 @@ void elevator_set_floor_indicator(int floor);
 /**
   Button types for function elev_set_button_lamp() and elev_get_button().   ssss
 */
-typedef enum tag_elev_lamp_type { 
+typedef enum tag_elev_lamp_type {
     BUTTON_CALL_UP = 0,
     BUTTON_CALL_DOWN = 1,
     BUTTON_COMMAND = 2

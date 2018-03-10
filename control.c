@@ -65,7 +65,7 @@ void control_set_button(elev_button_type_t button, int floor, int value) {
     assert(!(button == BUTTON_CALL_UP && floor == N_FLOORS - 1));
     assert(!(button == BUTTON_CALL_DOWN && floor == 0));
     assert(button == BUTTON_CALL_UP || button == BUTTON_CALL_DOWN || button == BUTTON_COMMAND);
-    
+
     button_control_matrix[floor][button]=value;
     elevator_set_button_lamp(floor,button, value);
 }
@@ -130,12 +130,12 @@ void control_print_control_matrix(void){
 
 elev_motor_direction_t control_direction(elev_motor_direction_t direction){
     if (control_emergency_flag){
-    	for (int button = 0; button < N_BUTTONS; ++button){
-    	    if(button_control_matrix[control_previous_floor][button] == 1){
-        		control_previous_direction *= -1; //Set direction to opposit direction		
-        		return control_previous_direction;
-    	    }
-    	} 
+        for (int button = 0; button < N_BUTTONS; ++button){
+            if(button_control_matrix[control_previous_floor][button] == 1){
+                control_previous_direction *= -1; //Set direction to opposit direction
+                return control_previous_direction;
+            }
+        }
     }
 
     //Default direction is up
@@ -147,7 +147,7 @@ elev_motor_direction_t control_direction(elev_motor_direction_t direction){
     int current_floor, floor_itterator ,button;
     current_floor = control_get_previous_floor();
     floor_itterator = current_floor;
-    
+
     //Check if the up or down button is to be checked
     if (dirn == DIRN_UP){
         button = 0;
@@ -156,18 +156,18 @@ elev_motor_direction_t control_direction(elev_motor_direction_t direction){
         button = 1;
     }
 
-    if(button_control_matrix[floor_itterator][button] == 1 
-        || button_control_matrix[floor_itterator][2] == 1){ 
+    if(button_control_matrix[floor_itterator][button] == 1
+       || button_control_matrix[floor_itterator][2] == 1){
         return DIRN_STOP; //If there is an order at the current floor in the current direction
     }
 
-    do{ 
+    do{
         if (floor_itterator == N_FLOORS-1 || floor_itterator < 0){ //Looping through orders counter clockwise
             dirn *= -1;
             button = (button + 1) % 2;
         }
-        if(button_control_matrix[floor_itterator][button] == 1 
-            || button_control_matrix[floor_itterator][2] == 1){
+        if(button_control_matrix[floor_itterator][button] == 1
+           || button_control_matrix[floor_itterator][2] == 1){
             if(floor_itterator > current_floor){
                 return DIRN_UP;
             }
@@ -180,7 +180,7 @@ elev_motor_direction_t control_direction(elev_motor_direction_t direction){
         }
         floor_itterator += dirn;
     }while(floor_itterator != current_floor || dirn != direction); //No order found after one loop
-    
+
     return DIRN_IDLE;
 
 

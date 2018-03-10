@@ -60,7 +60,7 @@ int elevator_get_obstruction_signal(void);
   Get signal from stop button.
   @return 1 if stop button is pushed, 0 if not.
 */
-int elevator_get_stop_signal(void); 
+int elevator_get_stop_signal(void);
 
 
 
