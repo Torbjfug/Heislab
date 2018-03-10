@@ -36,22 +36,25 @@ int main() {
 
             case STOP_ST:
                 {
-                
+                control_clear_floor_order(DIRN_STOP, control_get_previous_floor());
                 elevator_set_motor_direction(DIRN_STOP);
                 printf("Stop state\n");
                 elevator_set_door_open_lamp(1);
-                timer_set(0.1,3);
+                timer_set(3);
 
-                while (timer_get() != TIMER_2_FINISHED) { //Wating for three seconds
-		          if(timer_get() == TIMER_1_FINISHED){ //Initial delay to avoid multiple orders
-                        control_update_control_matrix();
-                  }
+                while (!timer_get()) { //Wating for three seconds
+                    control_clear_floor_order(DIRN_STOP, control_get_previous_floor());
+                    control_update_control_matrix();                        
 		          if(elevator_get_stop_signal()){
     		          state = EMERGENCY_ST;
                       goto emergency;
     		       }
-            
+                   if(control_get_control_matrix_previous_floor()){
+                      timer_set(3); 
+                   }
+                   
                 }
+                
 
                 state = IDLE_ST;
                 }break;
@@ -75,7 +78,7 @@ int main() {
 
                 }
 
-                control_clear_floor_order(direction, control_get_previous_floor());
+                //control_clear_floor_order(direction, control_get_previous_floor());
                 if (direction == DIRN_STOP){
                   state = STOP_ST;
                 }
@@ -121,7 +124,7 @@ int main() {
                 direction = control_direction(direction);
 		
                 if (direction == DIRN_STOP){
-                    control_clear_floor_order(DIRN_UP, floor);
+                    //control_clear_floor_order(DIRN_UP, floor);
                     state = STOP_ST;
                 }
 		    
@@ -168,9 +171,9 @@ int main() {
                 direction = DIRN_DOWN;
                 direction = control_direction(direction);
 
-                if (direction == DIRN_STOP{
+                if (direction == DIRN_STOP){
                     state = STOP_ST;
-                    control_clear_floor_order(DIRN_DOWN, floor);
+                    //control_clear_floor_order(DIRN_DOWN, floor);
 		        }
                 else{
                     state = DOWN_ST;

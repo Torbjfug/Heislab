@@ -35,6 +35,11 @@ int control_get_emergency_flag(void);
 void control_set_previous_floor(int floor);
 int control_get_previous_floor();
 
+/**
+@return One if order at control_previous_floor, 0 otherwise.
+*/
+int control_get_control_matrix_previous_floor();
+
 
 /**
   Initialize elevator.

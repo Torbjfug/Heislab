@@ -186,6 +186,17 @@ elev_motor_direction_t control_direction(elev_motor_direction_t direction){
 
 }
 
+int control_get_control_matrix_previous_floor(){
+    int floor=control_previous_floor;
+    for(int button=0; button<N_BUTTONS; button++){
+        if (elevator_get_button_channel_matrix(floor, button)!=-1){//If button exists{
+            if (elevator_get_button_signal(button_control_list[button], floor)) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 
 
 

@@ -4,37 +4,21 @@
 #include <time.h>
 
 
-void timer_set(int length_1, int length_2){
+void timer_set(int length){
 	
 	time_t current_time;
-    timer_start = time(NULL);
-    if(length_1 < length_2){
-    	timer_length_1 = length_1;
-    	timer_length_2 = length_2;
-    }else {
-    	timer_length_2 = length_1;
-    	timer_length_1 = length_2;
-    }
-	
+    timer_start = time(NULL);	
+    timer_length=length;
 }
 
-timer_value_t timer_get(void){
-	time_t current_time ;
+int timer_get(void){
+	time_t current_time;
 	current_time = time(NULL);
-	if (current_time - timer_start >= timer_length_2){
-		return TIMER_2_FINISHED;
-	}
-	else if (current_time - timer_start >= timer_length_1){
-		return TIMER_1_FINISHED;
-	}
-	else{
-		return NO_TIMER_FINISHED;
-	}
-
+	
+	return((current_time-timer_start)>timer_length);
 }
 
 void timer_reset(){
 	timer_start = 0;
-	timer_length_1 = 0;
-	timer_length_2 = 0;
+	timer_length = 0;
 }
