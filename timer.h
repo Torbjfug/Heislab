@@ -7,9 +7,12 @@ static int timer_length_1;
 static int timer_length_2;
 static time_t timer_start;
 
-/**
-*/
-void timer_init();
+typedef enum tag_timer_retun_values
+{
+	TIMER_2_FINISHED = 2;
+	TIMER_1_FINISHED = 1;
+	NO_TIMER_FINISHED = 0;
+}timer_value_t;
 
 /**
 	start two timers
@@ -24,7 +27,7 @@ void timer_set(int length_1, int length_2);
 	check if timer is finished
 	@return 1 if timer_1 is finished, 2 if both timers are finished and 0 otherwise
 */
-int timer_get(void);
+timer_value_t timer_get(void);
 
 /**
 	Stops timer and reset timer_active_flag

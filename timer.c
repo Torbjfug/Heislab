@@ -18,17 +18,17 @@ void timer_set(int length_1, int length_2){
 	
 }
 
-int timer_get(void){
+timer_value_t timer_get(void){
 	time_t current_time ;
 	current_time = time(NULL);
 	if (current_time - timer_start >= timer_length_2){
-		return 2;
-
+		return TIMER_2_FINISHED;
 	}
-	else if (current_time - timer_start >= timer_length_1)
-		return 1;
+	else if (current_time - timer_start >= timer_length_1){
+		return TIMER_1_FINISHED;
+	}
 	else{
-		return 0;
+		return NO_TIMER_FINISHED;
 	}
 
 }

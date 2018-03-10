@@ -1,12 +1,8 @@
-//
-// Created by SigurdH on 27/02/2018.
-//
-
 #ifndef HEISLAB_HARDWARE_H
 #define HEISLAB_HARDWARE_H
 
 
-// Number of floors
+// Number of floors and buttons
 #define N_FLOORS 4
 #define N_BUTTONS 3
 
@@ -20,6 +16,16 @@ typedef enum tag_elevator_motor_direction {
     DIRN_UP = 1
 } elev_motor_direction_t;
 
+/**
+  Button types for the elevator
+*/
+typedef enum tag_elev_lamp_type {
+    BUTTON_CALL_UP = 0,
+    BUTTON_CALL_DOWN = 1,
+    BUTTON_COMMAND = 2
+} elev_button_type_t;
+
+
 int elevator_get_lamp_channel_matrix(int floor, int button);
 
 int elevator_get_button_channel_matrix(int floor, int button);
@@ -28,7 +34,7 @@ int elevator_get_button_channel_matrix(int floor, int button);
 
 /**
   Sets the motor direction of the elevator.
-
+  @param dirn Value to set motor direction.
 */
 void elevator_set_motor_direction(elev_motor_direction_t dirn);
 
@@ -54,7 +60,7 @@ int elevator_get_obstruction_signal(void);
   Get signal from stop button.
   @return 1 if stop button is pushed, 0 if not.
 */
-int elevator_get_stop_signal(void);
+int elevator_get_stop_signal(void); 
 
 
 
@@ -84,21 +90,10 @@ void elevator_set_floor_indicator(int floor);
 
 
 /**
-  Button types for function elev_set_button_lamp() and elev_get_button().
-*/
-typedef enum tag_elev_lamp_type {
-    BUTTON_CALL_UP = 0,
-    BUTTON_CALL_DOWN = 1,
-    BUTTON_COMMAND = 2
-} elev_button_type_t;
-
-
-
-/**
   Gets a button signal.
   @param button Which button type to check. Can be BUTTON_CALL_UP,
     BUTTON_CALL_DOWN or BUTTON_COMMAND (button "inside the elevator).
-  @param floor Which floor to check button. Must be 0-3.
+  @param floor Which floor to check button. Must be 0 to N_FLOORS-1.
   @return 0 if button is not pushed. 1 if button is pushed.
 */
 int elevator_get_button_signal(elev_button_type_t button, int floor);

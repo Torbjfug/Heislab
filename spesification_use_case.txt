@@ -1,0 +1,43 @@
+Main succsess scenario
+	1) Elevator is still whitout requests
+	2) User orders elevator from outside
+	3) Elevator goes to floor
+	4) Elevator arrives at floor
+	5) Door opens for 3 seconds
+	6) User orders elevator from inside
+	7) Elevator goes to floor
+	8) Elevator arrives at requested floor
+	9) Door opens for 3 seconds
+	10) Elevator waits for new request
+
+Extentions
+	2a) Two users orders elevator at same time
+		2.1) Controler loops through requests counter clockwise 
+			Up buttons and order buttons from current floor to top floor
+			Down buttons and order buttons
+			Up buttons and order buttons until current floor
+			If direction is down start looping down
+		2.2) Elevator goes to first order found
+		continiue at 3
+
+	3/7 a) Other user requests elevator at pasing floor in current direction
+		3/7.1) Elevator stopps
+		3/7.2) User orders elevator from inside
+		3/7.3) Continiue in previous direction  
+		continiue to 3/7
+
+	3/7 b) Other user requests elevator at pasing floor in other direction
+		2/6.1) Elevator pases whithout stopping
+		continiue at 3/7
+
+
+	Emergency button pushed
+		1) Elevator stops
+		2) Orders are deleted
+		3) Door opens for 3 seconds if the elevator is at a floor
+		continiue at 1/6
+
+
+
+
+

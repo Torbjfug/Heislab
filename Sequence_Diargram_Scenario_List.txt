@@ -1,0 +1,4 @@
+1) Elevator is empty at the second floor
+2) Person requests elevator upwards from the first floor
+3) When elevator arrives she orders transport to the third floor
+4) Scenario ends when the door opens at the third floor

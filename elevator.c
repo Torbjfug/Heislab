@@ -1,13 +1,3 @@
-//
-// Created by SigurdH on 27/02/2018.
-//
-
-// Wrapper for libComedi Elevator control.
-// These functions provides an interface to the elevators in the real time lab
-//
-// 2007, Martin Korsgaard
-
-
 #include "channels.h"
 #include "elevator.h"
 #include "control.h"
@@ -42,8 +32,6 @@ int elevator_get_lamp_channel_matrix(int floor, int button){
 int elevator_get_button_channel_matrix(int floor, int button){
     return button_channel_matrix[floor][button];
 }
-
-
 
 
 
@@ -84,21 +72,16 @@ void elevator_set_stop_lamp(int value) {
 }
 
 int elevator_get_floor_sensor_signal(void) {
-    if (io_read_bit(SENSOR_FLOOR1))
-    {
-
+    if (io_read_bit(SENSOR_FLOOR1)){
         return 0;
     }
     else if (io_read_bit(SENSOR_FLOOR2)) {
-
         return 1;
     }
     else if (io_read_bit(SENSOR_FLOOR3)) {
-
         return 2;
     }
     else if (io_read_bit(SENSOR_FLOOR4)) {
-
         return 3;
     }
     else {
